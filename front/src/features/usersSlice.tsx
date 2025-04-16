@@ -1,11 +1,12 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "../app/store";
-import { userLogin, postUserProfile, updateUserProfile } from "../utils/api";
+import { userLogin, postUserProfile, updateUserProfile, userSignUp } from "../utils/api";
 
 interface UserState {
   userInfo: UserProfile | null;
   logged: boolean;
   authToken: string | null;
+  signUpMessage?: string | null;
 }
 
 interface UserProfile {
@@ -17,7 +18,20 @@ const initialState: UserState = {
   userInfo: null,
   logged: false,
   authToken: null,
+  signUpMessage: null,
 };
+
+export const signUpThunk = createAsyncThunk(
+  "user/signUpThunk",
+  async ({ email, password }: { email: string; password: string }, { rejectWithValue }) => {
+    try {
+      const res = await userSignUp(email, password);
+      return { message: "Inscription réussie !" };
+    } catch (err) {
+      return rejectWithValue(err);
+    }
+  }
+);
 
 export const loginThunk = createAsyncThunk(
   "user/loginThunk",
@@ -73,13 +87,21 @@ const userSlice = createSlice({
       state.logged = false;
       state.userInfo = null;
       state.authToken = null;
+      state.signUpMessage = null;
     },
   },
   extraReducers: (builder) => {
     builder
+      .addCase(signUpThunk.fulfilled, (state, action: PayloadAction<{ message: string }>) => {
+        state.signUpMessage = action.payload.message;
+      })
+      .addCase(signUpThunk.rejected, (state) => {
+        state.signUpMessage = null;
+      })
       .addCase(loginThunk.fulfilled, (state, action: PayloadAction<string>) => {
         state.logged = true;
         state.authToken = action.payload;
+        state.signUpMessage = null;
       })
       .addCase(loginThunk.rejected, (state) => {
         state.logged = false;
@@ -105,3 +127,4 @@ export default userSlice.reducer;
 export const selectUserInfo = (state: RootState) => state.user.userInfo;
 export const selectLogged = (state: RootState) => state.user.logged;
 export const selectToken = (state: RootState) => state.user.authToken;
+export const selectSignUpMessage = (state: RootState) => state.user.signUpMessage;

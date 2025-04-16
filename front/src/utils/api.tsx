@@ -9,6 +9,7 @@ interface UserProfile {
   lastName: string;
 }
 
+
 export const userLogin = async (email: string, password: string): Promise<LoginResponse> => {
   const response = await fetch(`${API_URL}/login`, {
     method: "POST",
@@ -20,6 +21,22 @@ export const userLogin = async (email: string, password: string): Promise<LoginR
 
   if (!response.ok) {
     throw new Error(data.message || "Login failed");
+  }
+
+  return data.body; 
+};
+
+export const userSignUp = async (email: string, password: string): Promise<LoginResponse> => {
+  const response = await fetch(`${API_URL}/signup`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password }),
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.message || "Sign up failed");
   }
 
   return data.body;
@@ -66,7 +83,7 @@ export const updateUserProfile = async (
 ): Promise<UserProfile> => {
   const response = await fetch(`${API_URL}/profile`, {
     method: "PUT",
-    headers: { 
+    headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
     },
