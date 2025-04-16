@@ -36,10 +36,16 @@ const Navbar = () => {
             </button>
           </>
         ) : (
-          <Link className="main-nav-item" to="/signin">
-            <i className="fa fa-user-circle"></i>
-            Sign In
-          </Link>
+          <>
+            <Link className="main-nav-item" to="/signin">
+              <i className="fa fa-user-circle"></i>
+              Sign In
+            </Link>
+            <Link className="main-nav-item" to="/signup">
+              <i className="fa fa-user-plus"></i>
+              Sign Up
+            </Link>
+          </>
         )}
       </div>
     </nav>
